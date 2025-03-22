@@ -38,7 +38,7 @@ public class KafkaConsumerApplication {
         }));
 
         try {
-            consumer.subscribe(List.of("testTopic"));
+            consumer.subscribe(List.of(kafkaProperties.getProperty("topic-name")));
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
                 for (ConsumerRecord<String, String> consumerRecord : records) {
