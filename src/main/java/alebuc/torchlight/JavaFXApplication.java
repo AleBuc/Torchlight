@@ -1,54 +1,60 @@
 package alebuc.torchlight;
 
 import javafx.application.Application;
-import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.stage.Stage;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * JavaFX App
  */
 public class JavaFXApplication extends Application {
-    private ConfigurableApplicationContext context;
 
-    @Override
-    public void init() throws Exception {
-        ApplicationContextInitializer<GenericApplicationContext> initializer =
-                applicationContext -> {
-                    applicationContext.registerBean(Application.class, () -> JavaFXApplication.this);
-                    applicationContext.registerBean(Parameters.class, this::getParameters);
-                    applicationContext.registerBean(HostServices.class, this::getHostServices);
-                };
+    private ListView<String> eventListView;
+    private final Logger log = LoggerFactory.getLogger(JavaFXApplication.class);
 
-        this.context = new SpringApplicationBuilder()
-                .sources(SpringApplication.class)
-                .initializers(initializer)
-                .run(getParameters().getRaw().toArray(new String[0]));
+    public static void main(String[] args) {
+        launch(args);
     }
 
     @Override
     public void start(Stage stage) {
-        this.context.publishEvent(new StageReadyEvent(stage));
-    }
+        eventListView = new ListView<>();
+        Scene scene = new Scene(eventListView, 600, 600);
+        stage.setTitle("Torchlight");
+        stage.setScene(scene);
+        stage.show();
 
-    static class StageReadyEvent extends ApplicationEvent {
-        public StageReadyEvent(Object source) {
-            super(source);
-        }
+        KafkaEventConsumer consumer = new KafkaEventConsumer();
 
-        public Stage getStage() {
-            return Stage.class.cast(getSource());
-        }
+        Service<Void> consumerService = new Service<>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<>() {
+                    @Override
+                    protected Void call() {
+                        try {
+                            consumer.processEvents(eventListView);
+                        } catch (Exception e) {
+                            log.error(Arrays.toString(e.getStackTrace()));
+                        }
+                        return null;
+                    }
+                };
+            }
+        };
+        consumerService.start();
     }
 
     @Override
-    public void stop() throws Exception {
-        this.context.close();
+    public void stop() {
         Platform.exit();
     }
 }
