@@ -7,14 +7,15 @@ import javafx.scene.control.ListView;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 
 public class KafkaEventConsumer {
 
@@ -26,8 +27,15 @@ public class KafkaEventConsumer {
         log.info("Starting consumer.");
         Properties kafkaProperties = KafkaProperties.getProperties();
         consumer = new KafkaConsumer<>(kafkaProperties);
-        consumer.subscribe(Collections.singletonList(kafkaProperties.getProperty("topic-name")));
-        //fixme give unique GroupID and remove reading commit
+        Map<String,List<PartitionInfo>> listTopics = consumer.listTopics();
+        List<PartitionInfo> topicPartitionInfos = listTopics.get(kafkaProperties.getProperty("topic-name"));
+        List<TopicPartition> partitions = new ArrayList<>();
+        for (PartitionInfo partitionInfo : topicPartitionInfos) {
+            partitions.add(new TopicPartition(partitionInfo.topic(), partitionInfo.partition()));
+        }
+        if (!partitions.isEmpty()) {
+            consumer.assign(partitions);
+        }
     }
 
     public void processEvents(ListView<String> eventListView) {
