@@ -21,6 +21,11 @@ public class KafkaProperties {
     private static final String CLUSTER_CREDENTIALS_PASSWORD = "cluster.credentials.password";
     private static final String TOPIC_NAME = "topic-name";
 
+    /**
+     * Gets Kafka cluster properties
+     *
+     * @return retrieved properties
+     */
     public static Properties getProperties() {
         Properties properties = new Properties();
         Properties readenProperties = readPropertiesFile();

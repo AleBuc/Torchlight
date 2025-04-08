@@ -15,7 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class KafkaEventConsumer {
 
@@ -23,11 +26,14 @@ public class KafkaEventConsumer {
 
     private final KafkaConsumer<String, String> consumer;
 
+    /**
+     * Initializes the consumer and assign topic and partitions.
+     */
     public KafkaEventConsumer() {
         log.info("Starting consumer.");
         Properties kafkaProperties = KafkaProperties.getProperties();
         consumer = new KafkaConsumer<>(kafkaProperties);
-        Map<String,List<PartitionInfo>> listTopics = consumer.listTopics();
+        Map<String, List<PartitionInfo>> listTopics = consumer.listTopics();
         List<PartitionInfo> topicPartitionInfos = listTopics.get(kafkaProperties.getProperty("topic-name"));
         List<TopicPartition> partitions = new ArrayList<>();
         for (PartitionInfo partitionInfo : topicPartitionInfos) {
@@ -38,6 +44,11 @@ public class KafkaEventConsumer {
         }
     }
 
+    /**
+     * Adds Kafka events to a given list.
+     *
+     * @param eventListView list to populate
+     */
     public void processEvents(ListView<String> eventListView) {
         while (true) {
             try {
@@ -57,6 +68,9 @@ public class KafkaEventConsumer {
         }
     }
 
+    /**
+     * Stops the consumer.
+     */
     public void close() {
         consumer.close();
     }
