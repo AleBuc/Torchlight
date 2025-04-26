@@ -2,8 +2,9 @@ package alebuc.torchlight;
 
 
 import alebuc.torchlight.configuration.KafkaProperties;
+import alebuc.torchlight.model.Event;
 import javafx.application.Platform;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -47,17 +48,17 @@ public class KafkaEventConsumer {
     /**
      * Adds Kafka events to a given list.
      *
-     * @param eventListView list to populate
+     * @param eventTableView list to populate
      */
-    public void processEvents(ListView<String> eventListView) {
+    public void processEvents(TableView<Event<String, String>> eventTableView) {
         while (true) {
             try {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
                 for (ConsumerRecord<String, String> consumerRecord : records) {
                     Platform.runLater(() -> {
-                        String recordContent = String.format("Partition: %d, Offset: %d, Key: %s, Value: %s", consumerRecord.partition(), consumerRecord.offset(), consumerRecord.key(), consumerRecord.value());
-                        eventListView.getItems().add(recordContent);
-                        log.info(recordContent);
+                        Event<String, String> event = new Event<>(consumerRecord);
+                        eventTableView.getItems().add(event);
+                        log.info(event.toString());
                     });
                 }
             } catch (WakeupException wakeupException) {
