@@ -1,0 +1,95 @@
+package alebuc.torchlight.controller;
+
+import alebuc.torchlight.JavaFXApplication;
+import alebuc.torchlight.consumer.KafkaEventConsumer;
+import alebuc.torchlight.model.Topic;
+import alebuc.torchlight.scene.ConsumerScene;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ResourceBundle;
+
+public class MainScreenController implements Initializable {
+    private KafkaEventConsumer consumer;
+    private ConsumerScene consumerScene;
+    private final Logger log = LoggerFactory.getLogger(JavaFXApplication.class);
+
+    @FXML
+    private Label topicsCount;
+
+    @FXML
+    private Label partitionsCount;
+
+    @FXML
+    private Button refreshButton;
+
+    @FXML
+    private CheckBox showHiddenTopicsCheckbox;
+
+    @FXML
+    private Accordion topicsAccordion;
+
+    @FXML
+    void refreshTopicList(ActionEvent event) {
+        log.info("refresh list");
+        List<Topic> topics;
+        if (showHiddenTopicsCheckbox.isSelected()) {
+            topics = consumer.getTopics();
+            topics.sort(Comparator.comparing(Topic::getName, Comparator.naturalOrder()));
+        } else {
+            topics = consumer.getTopics().stream().filter(topic -> topic.getName().charAt(0) != '_').sorted(Comparator.comparing(Topic::getName, Comparator.naturalOrder())).toList();
+        }
+        int tCount = topics.size();
+        int pCount = topics.stream().mapToInt(topic -> topic.getPartitions().size()).sum();
+        topicsCount.setText(String.valueOf(tCount));
+        partitionsCount.setText(String.valueOf(pCount));
+        setTopicList(topics);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        consumer = new KafkaEventConsumer();
+        consumerScene = new ConsumerScene(consumer);
+        refreshTopicList(null);
+    }
+
+    private void setTopicList(List<Topic> topicList) {
+        topicsAccordion.getPanes().removeAll(topicsAccordion.getPanes());
+        for (Topic topic : topicList) {
+            TitledPane titledPane = new TitledPane();
+            titledPane.setAnimated(true);
+            titledPane.setCollapsible(true);
+            titledPane.setText(topic.getName());
+            titledPane.setContent(createTopicPaneContent(topic));
+            topicsAccordion.getPanes().add(titledPane);
+        }
+
+    }
+
+    private Node createTopicPaneContent(Topic topic) {
+        URL resource = getClass().getClassLoader().getResource("topicPaneContent.fxml");
+        TopicPaneContentController topicPaneContentController = new TopicPaneContentController(consumerScene);
+        FXMLLoader paneContent = new FXMLLoader(resource);
+        paneContent.setController(topicPaneContentController);
+        Node node;
+        try {
+            node = paneContent.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        topicPaneContentController.setTopicName(topic.getName());
+        topicPaneContentController.setEventsCount(topic.getEventCount());
+        topicPaneContentController.setPartitionsCount(topic.getPartitionsCount());
+        return node;
+    }
+}
