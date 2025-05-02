@@ -34,23 +34,25 @@ public class JavaFXApplication extends Application {
 
         KafkaEventConsumer consumer = new KafkaEventConsumer();
 
-        Service<Void> consumerService = new Service<>() {
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<>() {
-                    @Override
-                    protected Void call() {
-                        try {
-                            consumer.processEvents(eventListView);
-                        } catch (Exception e) {
-                            log.error(Arrays.toString(e.getStackTrace()));
-                        }
-                        return null;
-                    }
-                };
-            }
-        };
-        consumerService.start();
+//        Service<Void> consumerService = new Service<>() {
+//            @Override
+//            protected Task<Void> createTask() {
+//                return new Task<>() {
+//                    @Override
+//                    protected Void call() {
+//                        try {
+//                            consumer.getTopics();
+//                        } catch (Exception e) {
+//                            log.error(Arrays.toString(e.getStackTrace()));
+//                        }
+//                        return null;
+//                    }
+//                };
+//            }
+//        };
+//        consumerService.start();
+
+
     }
 
     @Override
