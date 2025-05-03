@@ -2,15 +2,16 @@ package alebuc.torchlight;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.Objects;
 
 /**
  * JavaFX App
@@ -25,14 +26,15 @@ public class JavaFXApplication extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
+        Parent root = FXMLLoader.load((Objects.requireNonNull(getClass().getClassLoader().getResource("ui.fxml"))));
         eventListView = new ListView<>();
-        Scene scene = new Scene(eventListView, 600, 600);
+        Scene scene = new Scene(root);
         stage.setTitle("Torchlight");
         stage.setScene(scene);
         stage.show();
 
-        KafkaEventConsumer consumer = new KafkaEventConsumer();
+//        KafkaEventConsumer consumer = new KafkaEventConsumer();
 
 //        Service<Void> consumerService = new Service<>() {
 //            @Override

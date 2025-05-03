@@ -1,4 +1,4 @@
-package alebuc.torchlight;
+package alebuc.torchlight.consumer;
 
 
 import alebuc.torchlight.configuration.KafkaProperties;
