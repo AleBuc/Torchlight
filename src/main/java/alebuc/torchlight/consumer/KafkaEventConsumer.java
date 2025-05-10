@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@S
 public class KafkaEventConsumer {
 
     private final Logger log = LoggerFactory.getLogger(KafkaEventConsumer.class);
@@ -68,13 +69,6 @@ public class KafkaEventConsumer {
                 log.error("Exception occurred: ", exception);
             }
         }
-    }
-
-    /**
-     * Stops the consumer.
-     */
-    public void close() {
-        consumer.close();
     }
 
     public List<Topic> getTopics() {

@@ -4,4 +4,5 @@ open module alebuc.torchlight {
     requires kafka.clients;
     requires org.slf4j;
     requires static lombok;
+    requires java.desktop;
 }
