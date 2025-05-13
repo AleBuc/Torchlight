@@ -30,6 +30,8 @@ public class KafkaEventConsumer {
     Map<String, Topic> topicByName;
     private final Set<UUID> stageIdForConsumerStopping = new HashSet<>();
 
+    //todo use  Virtual Proxy pattern https://java-design-patterns.com/patterns/virtual-proxy/#programmatic-example-of-virtual-proxy-pattern-in-java
+
     /**
      * Initializes the consumer and assign topic and partitions.
      */

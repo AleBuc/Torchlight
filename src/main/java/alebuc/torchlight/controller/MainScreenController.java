@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +20,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+@Slf4j
 public class MainScreenController implements Initializable {
     private KafkaEventConsumer consumer;
     private ConsumerScene consumerScene;
-    private final Logger log = LoggerFactory.getLogger(JavaFXApplication.class);
 
     @FXML
     private Label topicsCount;
@@ -81,15 +82,15 @@ public class MainScreenController implements Initializable {
         TopicPaneContentController topicPaneContentController = new TopicPaneContentController(consumerScene);
         FXMLLoader paneContent = new FXMLLoader(resource);
         paneContent.setController(topicPaneContentController);
-        Node node;
+        Node node = null;
         try {
             node = paneContent.load();
+            topicPaneContentController.setTopicName(topic.getName());
+            topicPaneContentController.setEventsCount(topic.getEventCount());
+            topicPaneContentController.setPartitionsCount(topic.getPartitionsCount());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Error during pane creation.", e);
         }
-        topicPaneContentController.setTopicName(topic.getName());
-        topicPaneContentController.setEventsCount(topic.getEventCount());
-        topicPaneContentController.setPartitionsCount(topic.getPartitionsCount());
         return node;
     }
 }

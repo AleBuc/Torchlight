@@ -37,10 +37,23 @@ public class TopicPaneContentController extends HBox {
         consumerScene.createConsumer(getTopicName());
     }
 
+    /**
+     * Sets event count in the pane. Disable the "Consume" button if no event to read.
+     *
+     * @param eventsCount event count from the topic
+     */
     public void setEventsCount(long eventsCount) {
         this.eventsCount.setText(String.valueOf(eventsCount));
+        if (eventsCount == 0L) {
+            consumeButton.setDisable(true);
+        }
     }
 
+    /**
+     * Sets partition count in the pane.
+     *
+     * @param partitionsCount partition count from the topic
+     */
     public void setPartitionsCount(int partitionsCount) {
         this.partitionsCount.setText(String.valueOf(partitionsCount));
     }
