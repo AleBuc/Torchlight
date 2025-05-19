@@ -56,7 +56,7 @@
                   GridPane.valignment="CENTER"/>
     </GridPane>
    <VBox prefHeight="20.0" prefWidth="600.0" />
-    <ScrollPane prefHeight="183.0" prefWidth="600.0" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+    <ScrollPane prefHeight="183.0" prefWidth="600.0" hbarPolicy="NEVER" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
         <Accordion fx:id="topicsAccordion" minHeight="-Infinity"/>
     </ScrollPane>
 
