@@ -70,6 +70,7 @@ public class MainScreenController implements Initializable {
             TitledPane titledPane = new TitledPane();
             titledPane.setAnimated(true);
             titledPane.setCollapsible(true);
+            titledPane.setTooltip(new Tooltip(topic.getName()));
             titledPane.setText(topic.getName());
             titledPane.setContent(createTopicPaneContent(topic));
             topicsAccordion.getPanes().add(titledPane);
