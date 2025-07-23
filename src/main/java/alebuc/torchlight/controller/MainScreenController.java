@@ -1,6 +1,5 @@
 package alebuc.torchlight.controller;
 
-import alebuc.torchlight.JavaFXApplication;
 import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.model.Topic;
 import alebuc.torchlight.scene.ConsumerScene;
@@ -10,9 +9,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,9 +19,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 @Slf4j
+@RequiredArgsConstructor
 public class MainScreenController implements Initializable {
-    private KafkaEventConsumer consumer;
-    private ConsumerScene consumerScene;
+    private final KafkaEventConsumer consumer;
+    private final ConsumerScene consumerScene;
 
     @FXML
     private Label topicsCount;
@@ -59,8 +58,6 @@ public class MainScreenController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        consumer = new KafkaEventConsumer();
-        consumerScene = new ConsumerScene(consumer);
         refreshTopicList(null);
     }
 
