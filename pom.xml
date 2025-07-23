@@ -16,6 +16,11 @@
         <mainClass>alebuc.torchlight.JavaFXApplication</mainClass>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.2.9</version>
+        </dependency>
         <!--    JavaFX        -->
         <dependency>
             <groupId>org.openjfx</groupId>
