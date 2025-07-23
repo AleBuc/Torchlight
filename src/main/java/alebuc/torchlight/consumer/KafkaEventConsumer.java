@@ -30,8 +30,6 @@ public class KafkaEventConsumer {
     Map<String, Topic> topicByName;
     private final Set<UUID> stageIdForConsumerStopping = new HashSet<>();
 
-    //todo use  Virtual Proxy pattern https://java-design-patterns.com/patterns/virtual-proxy/#programmatic-example-of-virtual-proxy-pattern-in-java
-
     /**
      * Initializes the consumer and assign topic and partitions.
      */
@@ -59,21 +57,19 @@ public class KafkaEventConsumer {
             consumer.assign(partitions);
             log.info("Start consumption of topic {}.", topicName);
             while (!stageIdForConsumerStopping.contains(stageId)) {
-                try {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS));
-                    for (ConsumerRecord<String, String> consumerRecord : records) {
-                        Platform.runLater(() -> {
-                            String recordContent = String.format("Partition: %d, Offset: %d, Key: %s, Value: %s", consumerRecord.partition(), consumerRecord.offset(), consumerRecord.key(), consumerRecord.value());
-                            eventListView.getItems().add(recordContent);
-                            log.info(recordContent);
-                        });
-                    }
-                } catch (WakeupException _) {
-                    log.info("Consumer waking up.");
+                ConsumerRecords<String, String> records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS));
+                for (ConsumerRecord<String, String> consumerRecord : records) {
+                    Platform.runLater(() -> {
+                        String recordContent = String.format("Partition: %d, Offset: %d, Key: %s, Value: %s", consumerRecord.partition(), consumerRecord.offset(), consumerRecord.key(), consumerRecord.value());
+                        eventListView.getItems().add(recordContent);
+                        log.info(recordContent);
+                    });
                 }
             }
             consumer.wakeup();
             consumer.unsubscribe();
+        } catch (WakeupException _) {
+            log.info("Consumer waking up.");
         } catch (Exception e) {
             log.error("Exception occurred: ", e);
         }
