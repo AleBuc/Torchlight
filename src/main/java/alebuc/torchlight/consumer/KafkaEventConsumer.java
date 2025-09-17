@@ -2,6 +2,7 @@ package alebuc.torchlight.consumer;
 
 
 import alebuc.torchlight.configuration.KafkaProperties;
+import alebuc.torchlight.model.Event;
 import alebuc.torchlight.model.Partition;
 import alebuc.torchlight.model.Topic;
 import javafx.application.Platform;
@@ -43,7 +44,7 @@ public class KafkaEventConsumer {
      *
      * @param eventListView list to populate
      */
-    public void processEvents(UUID stageId, String topicName, ListView<String> eventListView) {
+    public void processEvents(UUID stageId, String topicName, ListView<Event<?,?>> eventListView) {
         Topic topic = topicByName.get(topicName);
         List<TopicPartition> partitions = new ArrayList<>();
         for (Partition partition : topic.getPartitions()) {
@@ -60,9 +61,9 @@ public class KafkaEventConsumer {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS));
                 for (ConsumerRecord<String, String> consumerRecord : records) {
                     Platform.runLater(() -> {
-                        String recordContent = String.format("Partition: %d, Offset: %d, Key: %s, Value: %s", consumerRecord.partition(), consumerRecord.offset(), consumerRecord.key(), consumerRecord.value());
-                        eventListView.getItems().add(recordContent);
-                        log.info(recordContent);
+                        Event<?, ?> event = new Event<>(consumerRecord);
+                        eventListView.getItems().add(event);
+                        log.info(event.toString());
                     });
                 }
             }

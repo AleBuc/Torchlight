@@ -5,33 +5,28 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="alebuc.torchlight.controller.EventDetailController">
-  <tabs>
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+         prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17.0.12"
+         xmlns:fx="http://javafx.com/fxml/1">
     <Tab text="Key">
-         <content>
-            <TextArea fx:id="keyTextField" prefHeight="200.0" prefWidth="200.0">
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </TextArea>
-         </content></Tab>
-      <Tab text="Value">
-         <content>
-            <TextArea fx:id="valueTextField" prefHeight="200.0" prefWidth="200.0">
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </TextArea>
-         </content>
-      </Tab>
-      <Tab text="Headers">
-         <content>
-            <TextArea fx:id="headersTextField" prefHeight="200.0" prefWidth="200.0">
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </TextArea>
-         </content>
-      </Tab>
-  </tabs>
+        <TextArea fx:id="keyTextField" prefHeight="200.0" prefWidth="200.0">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+        </TextArea>
+    </Tab>
+    <Tab text="Value">
+        <TextArea fx:id="valueTextField" prefHeight="200.0" prefWidth="200.0">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+        </TextArea>
+    </Tab>
+    <Tab text="Headers">
+        <TextArea fx:id="headersTextField" prefHeight="200.0" prefWidth="200.0">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+        </TextArea>
+    </Tab>
 </TabPane>
