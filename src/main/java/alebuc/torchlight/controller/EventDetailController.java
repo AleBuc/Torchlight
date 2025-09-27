@@ -1,11 +1,16 @@
 package alebuc.torchlight.controller;
 
 import alebuc.torchlight.model.Event;
+import alebuc.torchlight.utils.ValueUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class EventDetailController extends TabPane {
+
+    private final ValueUtils valueUtils;
 
     @FXML
     private TextArea keyTextField;
@@ -14,15 +19,12 @@ public class EventDetailController extends TabPane {
     @FXML
     private TextArea headersTextField;
 
-    public EventDetailController(Event<?,?> event) {
-        this.keyTextField = new TextArea();
-        this.valueTextField = new TextArea();
-        this.headersTextField = new TextArea();
-        this.keyTextField.setText(String.valueOf(event.getKey()));
+    public void setTextFields(Event<?,?> event) {
+        this.keyTextField.setText(valueUtils.stringOf(event.getKey()));
         this.keyTextField.setEditable(false);
-        this.valueTextField.setText(String.valueOf(event.getValue()));
+        this.valueTextField.setText(valueUtils.stringOf(event.getValue()));
         this.valueTextField.setEditable(false);
-        this.headersTextField.setText(String.valueOf(event.getHeaders()));
+        this.headersTextField.setText(valueUtils.stringOf(event.getHeaders()));
         this.headersTextField.setEditable(false);
     }
 }

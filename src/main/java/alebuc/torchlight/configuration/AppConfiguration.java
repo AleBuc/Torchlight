@@ -4,6 +4,7 @@ import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.controller.MainScreenController;
 import alebuc.torchlight.controller.TopicPaneContentController;
 import alebuc.torchlight.scene.ConsumerScene;
+import alebuc.torchlight.utils.ValueUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +17,8 @@ public class AppConfiguration {
     }
 
     @Bean
-    public ConsumerScene consumerScene(KafkaEventConsumer kafkaEventConsumer) {
-        return new ConsumerScene(kafkaEventConsumer);
+    public ConsumerScene consumerScene(KafkaEventConsumer kafkaEventConsumer, ValueUtils valueUtils) {
+        return new ConsumerScene(kafkaEventConsumer, valueUtils);
     }
 
     @Bean
@@ -28,6 +29,11 @@ public class AppConfiguration {
     @Bean
     public TopicPaneContentController topicPaneContentController(ConsumerScene consumerScene) {
         return new TopicPaneContentController(consumerScene);
+    }
+
+    @Bean
+    public ValueUtils valueUtils() {
+        return new ValueUtils();
     }
 
 }
