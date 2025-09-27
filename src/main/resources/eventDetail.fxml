@@ -1,26 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
          prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17.0.12"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Tab text="Key">
-        <TextArea fx:id="keyTextField" prefHeight="200.0" prefWidth="200.0">
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-            </padding>
-        </TextArea>
-    </Tab>
-    <Tab text="Value">
-        <TextArea fx:id="valueTextField" prefHeight="200.0" prefWidth="200.0">
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-            </padding>
-        </TextArea>
+    <Tab text="Event">
+        <VBox>
+            <BorderPane>
+                <top>
+                    <Label text="Key" BorderPane.alignment="CENTER_LEFT">
+                        <padding>
+                            <Insets top="5" left="10" bottom="5"/>
+                        </padding>
+                    </Label>
+                </top>
+                <center>
+                    <TextArea fx:id="keyTextField" prefHeight="200.0" prefWidth="200.0">
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                        </padding>
+                    </TextArea>
+                </center>
+
+            </BorderPane>
+            <BorderPane  VBox.vgrow="ALWAYS">
+                <top>
+                    <Label text="Value" BorderPane.alignment="CENTER_LEFT">
+                        <padding>
+                            <Insets top="15" left="10" bottom="5"/>
+                        </padding>
+                    </Label>
+                </top>
+                <center>
+<!--                    <TextArea fx:id="valueTextField" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">-->
+                    <TextArea fx:id="valueTextField" prefWidth="200.0">
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                        </padding>
+                    </TextArea>
+                </center>
+            </BorderPane>
+        </VBox>
     </Tab>
     <Tab text="Headers">
         <TextArea fx:id="headersTextField" prefHeight="200.0" prefWidth="200.0">
