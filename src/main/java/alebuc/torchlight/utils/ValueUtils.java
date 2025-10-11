@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class ValueUtils {
-    private final ObjectMapper objectMapper = new ObjectMapper()
+    private static final ObjectMapper objectMapper = new ObjectMapper()
             .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
-    private final ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+    private static final ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
-    public String stringOf(Object object) {
+    public static String stringOf(Object object) {
         if (object instanceof String string){
             if (isValidJson(string)) {
                 try {
@@ -32,7 +32,7 @@ public class ValueUtils {
         return String.valueOf(object);
     }
 
-    public boolean isValidJson(String string) {
+    public static boolean isValidJson(String string) {
         try {
             objectMapper.readTree(string);
         } catch (JacksonException e) {

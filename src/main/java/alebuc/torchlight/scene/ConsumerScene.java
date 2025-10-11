@@ -3,7 +3,6 @@ package alebuc.torchlight.scene;
 import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.controller.EventDetailController;
 import alebuc.torchlight.model.Event;
-import alebuc.torchlight.utils.ValueUtils;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
@@ -25,7 +24,6 @@ import java.util.UUID;
 public class ConsumerScene {
 
     private final KafkaEventConsumer consumer;
-    private final ValueUtils valueUtils;
 
     /**
      * Creates a new stage for the topic consumption.
@@ -71,7 +69,7 @@ public class ConsumerScene {
 
     private void createEventDetailController(Event<?,?> event){
         URL resource = getClass().getClassLoader().getResource("eventDetail.fxml");
-        EventDetailController eventDetailController = new EventDetailController(valueUtils);
+        EventDetailController eventDetailController = new EventDetailController();
         FXMLLoader eventDetail = new FXMLLoader(resource);
         eventDetail.setController(eventDetailController);
         try {

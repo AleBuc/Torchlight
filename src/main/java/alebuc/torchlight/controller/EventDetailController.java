@@ -6,11 +6,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.header.Headers;
+
+import java.nio.charset.Charset;
 
 @RequiredArgsConstructor
 public class EventDetailController extends TabPane {
-
-    private final ValueUtils valueUtils;
 
     @FXML
     private TextArea keyTextField;
@@ -20,11 +21,19 @@ public class EventDetailController extends TabPane {
     private TextArea headersTextField;
 
     public void setTextFields(Event<?,?> event) {
-        this.keyTextField.setText(valueUtils.stringOf(event.getKey()));
+        this.keyTextField.setText(ValueUtils.stringOf(event.getKey()));
         this.keyTextField.setEditable(false);
-        this.valueTextField.setText(valueUtils.stringOf(event.getValue()));
+        this.valueTextField.setText(ValueUtils.stringOf(event.getValue()));
         this.valueTextField.setEditable(false);
-        this.headersTextField.setText(valueUtils.stringOf(event.getHeaders()));
+        this.headersTextField.setText(headersAsString(event.getHeaders()));
         this.headersTextField.setEditable(false);
+    }
+
+    private String headersAsString(Headers headers) {
+        StringBuilder sb = new StringBuilder();
+        for (var header : headers) {
+            sb.append(header.key()).append(": ").append(new String(header.value(), Charset.defaultCharset())).append("\n");
+        }
+        return sb.toString();
     }
 }
