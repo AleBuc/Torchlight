@@ -8,4 +8,5 @@ open module alebuc.torchlight {
     requires kafka.clients;
     requires org.slf4j;
     requires java.desktop;
+    requires com.fasterxml.jackson.databind;
 }
