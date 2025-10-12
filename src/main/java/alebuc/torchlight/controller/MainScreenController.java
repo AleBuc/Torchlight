@@ -8,9 +8,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Accordion;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.Strings;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +30,7 @@ import java.util.ResourceBundle;
 public class MainScreenController implements Initializable {
     private final KafkaEventConsumer consumer;
     private final ConsumerScene consumerScene;
+    private List<Topic> topics;
 
     @FXML
     private Label topicsCount;
@@ -40,9 +48,11 @@ public class MainScreenController implements Initializable {
     private Accordion topicsAccordion;
 
     @FXML
+    private TextField topicSearchField;
+
+    @FXML
     void refreshTopicList(ActionEvent event) {
         log.info("refresh list");
-        List<Topic> topics;
         if (showHiddenTopicsCheckbox.isSelected()) {
             topics = consumer.getTopics();
             topics.sort(Comparator.comparing(Topic::getName, Comparator.naturalOrder()));
@@ -59,6 +69,11 @@ public class MainScreenController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         refreshTopicList(null);
+        topicSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            setTopicList(filterTopicsByName());
+
+        });
+
     }
 
     private void setTopicList(List<Topic> topicList) {
@@ -91,4 +106,15 @@ public class MainScreenController implements Initializable {
         }
         return node;
     }
+
+    private List<Topic> filterTopicsByName() {
+        List<Topic> filteredTopics;
+        if (showHiddenTopicsCheckbox.isSelected()) {
+            filteredTopics = topics.stream().filter(topic -> Strings.CI.contains(topic.getName(), topicSearchField.getText())).toList();
+        } else {
+            filteredTopics = topics.stream().filter(topic -> topic.getName().charAt(0) != '_' && Strings.CI.contains(topic.getName(), topicSearchField.getText())).toList();
+        }
+        return filteredTopics;
+    }
+
 }
