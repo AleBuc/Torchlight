@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.Pane?>
+
+<GridPane prefHeight="600.0" prefWidth="800.0"
+          xmlns="http://javafx.com/javafx/24.0.1"
+          xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints prefWidth="580.0" />
+        <ColumnConstraints prefWidth="1.0" />   <!-- vertical separator column -->
+        <ColumnConstraints prefWidth="219.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints prefHeight="100.0" />
+        <RowConstraints prefHeight="1.0" />     <!-- horizontal separator row -->
+        <RowConstraints vgrow="ALWAYS" />
+    </rowConstraints>
+
+    <!-- Left top content -->
+    <Pane GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+    <!-- Horizontal separator ONLY under the left area up to the vertical separator -->
+    <Separator GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+    <!-- Left center content -->
+    <ListView GridPane.columnIndex="0" GridPane.rowIndex="2" />
+
+    <!-- Vertical separator spanning all rows; meets the horizontal one -->
+    <Separator orientation="VERTICAL"
+               GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="3" />
+
+    <!-- Right content -->
+    <Pane prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="3" />
+</GridPane>

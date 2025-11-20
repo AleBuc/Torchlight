@@ -3,6 +3,9 @@ package alebuc.torchlight.scene;
 import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.controller.EventDetailController;
 import alebuc.torchlight.model.Event;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ConsumerScene {
 
+    public static final int MAX_ITEMS = 50;
     private final KafkaEventConsumer consumer;
 
     /**
@@ -31,6 +35,12 @@ public class ConsumerScene {
      * @param topicName topic name
      */
     public void createConsumer(String topicName) {
+        ObservableList<Event<?,?>> limitedList = FXCollections.observableArrayList();
+        limitedList.addListener((ListChangeListener<Event<?,?>>) change -> {
+            if (limitedList.size() > MAX_ITEMS) {
+                limitedList.remove(0, limitedList.size() - MAX_ITEMS);
+            }
+        } );
         ListView<Event<?,?>> eventListView = new ListView<>();
         Scene scene = new Scene(eventListView, 1000L, 800L);
         Stage stage = new Stage();
