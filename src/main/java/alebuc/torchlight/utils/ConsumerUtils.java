@@ -1,6 +1,7 @@
-package alebuc.torchlight.scene;
+package alebuc.torchlight.utils;
 
 import alebuc.torchlight.consumer.KafkaEventConsumer;
+import alebuc.torchlight.controller.ConsumerController;
 import alebuc.torchlight.controller.EventDetailController;
 import alebuc.torchlight.model.Event;
 import javafx.collections.FXCollections;
@@ -12,7 +13,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -23,18 +23,16 @@ import java.util.UUID;
  * Scene with topic consumption content.
  */
 @Slf4j
-@RequiredArgsConstructor
-public class ConsumerScene {
+public abstract class ConsumerUtils {
 
     public static final int MAX_ITEMS = 50;
-    private final KafkaEventConsumer consumer;
 
     /**
      * Creates a new stage for the topic consumption.
      *
      * @param topicName topic name
      */
-    public void createConsumer(String topicName) {
+    public static void createConsumer(String topicName, KafkaEventConsumer consumer) {
         ObservableList<Event<?,?>> limitedList = FXCollections.observableArrayList();
         limitedList.addListener((ListChangeListener<Event<?,?>>) change -> {
             if (limitedList.size() > MAX_ITEMS) {
@@ -42,6 +40,21 @@ public class ConsumerScene {
             }
         } );
         ListView<Event<?,?>> eventListView = new ListView<>();
+        URL resource = ConsumerUtils.class.getClassLoader().getResource("consumer.fxml");
+        ConsumerController controller = new ConsumerController(consumer);
+        FXMLLoader consumerW = new FXMLLoader(resource);
+        consumerW.setController(controller);
+        try {
+            Scene scene = new Scene(consumerW.load());
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle(topicName);
+            stage.show();
+            controller.init(topicName);
+
+        } catch (IOException e) {
+            log.error("Error during event detail creation.", e);
+        }
         Scene scene = new Scene(eventListView, 1000L, 800L);
         Stage stage = new Stage();
         stage.setScene(scene);
@@ -77,8 +90,8 @@ public class ConsumerScene {
         stage.show();
     }
 
-    private void createEventDetailController(Event<?,?> event){
-        URL resource = getClass().getClassLoader().getResource("eventDetail.fxml");
+    private static void createEventDetailController(Event<?,?> event){
+        URL resource = ConsumerUtils.class.getClassLoader().getResource("eventDetail.fxml");
         EventDetailController eventDetailController = new EventDetailController();
         FXMLLoader eventDetail = new FXMLLoader(resource);
         eventDetail.setController(eventDetailController);

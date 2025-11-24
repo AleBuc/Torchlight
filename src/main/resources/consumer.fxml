@@ -39,7 +39,7 @@
     <Separator GridPane.columnIndex="0" GridPane.rowIndex="1" />
 
     <!-- Left center content -->
-    <ListView GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <ListView fx:id="eventListView" GridPane.columnIndex="0" GridPane.rowIndex="2" />
 
     <!-- Vertical separator spanning all rows; meets the horizontal one -->
     <Separator orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="3" />
@@ -65,7 +65,7 @@
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
              <Label fx:id="filteredEventCount" maxHeight="Infinity" text="filteredEventCount" visible="false" VBox.vgrow="ALWAYS" />
-             <Label fx:id="totalEventCount" maxHeight="Infinity" text="totalEventCount" VBox.vgrow="ALWAYS" />
+             <Label fx:id="totalEventCount" maxHeight="Infinity" text="totalEventCount" visible="false" VBox.vgrow="ALWAYS" />
             <HBox alignment="CENTER" maxHeight="Infinity" prefHeight="100.0" prefWidth="200.0" spacing="20.0" VBox.vgrow="ALWAYS">
                 <Button fx:id="consumeButton" mnemonicParsing="false" text="Consume" HBox.hgrow="ALWAYS" />
             </HBox>
