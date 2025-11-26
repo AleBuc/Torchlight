@@ -10,4 +10,6 @@ open module alebuc.torchlight {
     requires java.desktop;
     requires com.fasterxml.jackson.databind;
     requires org.apache.commons.lang3;
+    requires javafx.base;
+    requires javafx.graphics;
 }
