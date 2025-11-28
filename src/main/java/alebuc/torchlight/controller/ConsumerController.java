@@ -1,5 +1,6 @@
 package alebuc.torchlight.controller;
 
+import alebuc.torchlight.component.TimeSpinner;
 import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.model.Event;
 import alebuc.torchlight.model.consumer.EndChoice;
@@ -52,12 +53,16 @@ public class ConsumerController extends GridPane {
 
     @FXML
     private DatePicker startDateChoice;
+    @FXML
+    private TimeSpinner startTimeChoice;
 
     @FXML
     private ChoiceBox<EndChoice> endChoice;
 
     @FXML
     private DatePicker endDateChoice;
+    @FXML
+    private TimeSpinner endTimeChoice;
 
     @FXML
     private Label filteredEventCount;
@@ -160,16 +165,24 @@ public class ConsumerController extends GridPane {
         this.endChoice.setValue(EndChoice.DEFAULT);
 
         this.startDateChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
+        this.startTimeChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
         this.endDateChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
+        this.endTimeChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
 
-        this.startChoice.setOnAction(_ -> this.startDateChoice.setVisible(startChoice.getValue().isShowDatePicker()));
-        this.endChoice.setOnAction(_ -> this.endDateChoice.setVisible(endChoice.getValue().isShowDatePicker()));
+        this.startChoice.setOnAction(_ -> {
+            this.startDateChoice.setVisible(startChoice.getValue().isShowDatePicker());
+            this.startTimeChoice.setVisible(startChoice.getValue().isShowDatePicker());
+        });
+        this.endChoice.setOnAction(_ -> {
+            this.endDateChoice.setVisible(endChoice.getValue().isShowDatePicker());
+            this.endTimeChoice.setVisible(endChoice.getValue().isShowDatePicker());
+        });
     }
 
     @FXML
     void consumeButtonAction() {
-        eventListView.getItems().clear();
         if (consumerService == null || !consumerService.isRunning()) {
+            eventListView.getItems().clear();
             startConsumption();
         } else if (consumerService.isRunning()) {
             consumer.stopTopicConsumption(stageId);
