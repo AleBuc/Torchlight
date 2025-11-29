@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <GridPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="830.0"
-          xmlns="http://javafx.com/javafx/24.0.1" fx:controller="alebuc.torchlight.controller.ConsumerController">
+          xmlns="http://javafx.com/javafx/24.0.1">
     <columnConstraints>
         <ColumnConstraints hgrow="ALWAYS" prefWidth="590.0"/>
         <ColumnConstraints prefWidth="1.0"/>

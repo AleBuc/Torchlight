@@ -6,6 +6,7 @@ import alebuc.torchlight.model.Event;
 import alebuc.torchlight.model.consumer.EndChoice;
 import alebuc.torchlight.model.consumer.StartChoice;
 import alebuc.torchlight.utils.ConsumerUtils;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -177,6 +178,7 @@ public class ConsumerController extends GridPane {
             this.endDateChoice.setVisible(endChoice.getValue().isShowDatePicker());
             this.endTimeChoice.setVisible(endChoice.getValue().isShowDatePicker());
         });
+        totalEventCount.textProperty().bind(Bindings.size(limitedList).asString("%d events in topic"));
     }
 
     @FXML
@@ -192,6 +194,7 @@ public class ConsumerController extends GridPane {
 
     private void startConsumption() {
         stageId = UUID.randomUUID();
+        totalEventCount.setVisible(true);
         consumerService = new Service<>() {
             @Override
             protected Task<Void> createTask() {
@@ -211,7 +214,6 @@ public class ConsumerController extends GridPane {
         consumerService.start();
         consumeButton.setText("Stop");
     }
-
 
 }
 
