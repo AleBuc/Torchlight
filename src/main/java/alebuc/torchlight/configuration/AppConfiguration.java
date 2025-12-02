@@ -6,12 +6,25 @@ import alebuc.torchlight.controller.TopicPaneContentController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
+import java.time.ZoneId;
+
 @Configuration
 public class AppConfiguration {
 
     @Bean
-    public KafkaEventConsumer kafkaEventConsumer() {
-        return new KafkaEventConsumer();
+    public Clock clock() {
+        return Clock.systemUTC();
+    }
+
+    @Bean
+    public ZoneId zoneId() {
+        return ZoneId.systemDefault();
+    }
+
+    @Bean
+    public KafkaEventConsumer kafkaEventConsumer(Clock clock, ZoneId zoneId) {
+        return new KafkaEventConsumer(clock, zoneId);
     }
 
     @Bean
