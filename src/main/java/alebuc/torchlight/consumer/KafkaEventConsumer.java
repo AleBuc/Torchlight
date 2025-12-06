@@ -7,6 +7,7 @@ import alebuc.torchlight.model.EventFilter;
 import alebuc.torchlight.model.Partition;
 import alebuc.torchlight.model.Topic;
 import javafx.application.Platform;
+import javafx.beans.property.LongProperty;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -38,8 +38,6 @@ public class KafkaEventConsumer {
     private final Logger log = LoggerFactory.getLogger(KafkaEventConsumer.class);
 
     private final KafkaConsumer<String, String> menuConsumer;
-    private final Clock clock;
-    private final ZoneId zoneId;
     Map<String, Topic> topicByName;
     private final Set<UUID> stageIdForConsumerStopping = new HashSet<>();
 
@@ -49,8 +47,6 @@ public class KafkaEventConsumer {
     public KafkaEventConsumer(Clock clock, ZoneId zoneId) {
         log.info("Starting consumer.");
         this.menuConsumer = new KafkaConsumer<>(KAFKA_PROPERTIES);
-        this.clock = clock;
-        this.zoneId = zoneId;
     }
 
     /**
@@ -62,7 +58,11 @@ public class KafkaEventConsumer {
      * @param eventList   the list to which processed events will be added
      * @param eventFilter the filter containing start and end instants to filter events by timestamp
      */
-    public void processEvents(UUID stageId, String topicName, List<Event<?, ?>> eventList, EventFilter eventFilter) {
+    public void processEvents(UUID stageId,
+                              String topicName,
+                              List<Event<?, ?>> eventList,
+                              EventFilter eventFilter,
+                              LongProperty totalEventsCount) {
         Topic topic = topicByName.get(topicName);
         List<TopicPartition> partitions = new ArrayList<>();
         for (Partition partition : topic.getPartitions()) {
@@ -75,14 +75,14 @@ public class KafkaEventConsumer {
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(KAFKA_PROPERTIES)) {
             consumer.assign(partitions);
             log.info("Start consumption of topic {}.", topicName);
-            LocalDateTime now = clock.instant().atZone(zoneId).toLocalDateTime();
             while (!stageIdForConsumerStopping.contains(stageId)) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS));
                 for (ConsumerRecord<String, String> consumerRecord : records) {
                     Platform.runLater(() -> {
                         Event<?, ?> event = new Event<>(consumerRecord);
+                        totalEventsCount.set(totalEventsCount.get() + 1);
                         boolean afterStart = (eventFilter.startInstant() == null) || !event.getTimestamp().isBefore(eventFilter.startInstant());
-                        boolean beforeEnd  = (eventFilter.endInstant()   == null) || !event.getTimestamp().isAfter(eventFilter.endInstant());
+                        boolean beforeEnd = (eventFilter.endInstant() == null) || !event.getTimestamp().isAfter(eventFilter.endInstant());
 
                         if (afterStart && beforeEnd) {
                             eventList.add(event);

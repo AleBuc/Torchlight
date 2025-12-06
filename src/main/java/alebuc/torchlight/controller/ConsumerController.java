@@ -8,6 +8,8 @@ import alebuc.torchlight.model.consumer.EndChoice;
 import alebuc.torchlight.model.consumer.StartChoice;
 import alebuc.torchlight.utils.ConsumerUtils;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -51,6 +53,7 @@ public class ConsumerController extends GridPane {
     private ListView<Event<?, ?>> eventListView;
 
     private final ObservableList<Event<?, ?>> limitedList = FXCollections.observableArrayList();
+    private final LongProperty totalEventsCountValue = new SimpleLongProperty(0);
 
     @FXML
     private ChoiceBox<StartChoice> startChoice;
@@ -69,10 +72,10 @@ public class ConsumerController extends GridPane {
     private TimeSpinner endTimeChoice;
 
     @FXML
-    private Label filteredEventCount;
+    private Label filteredEventsCount;
 
     @FXML
-    private Label totalEventCount;
+    private Label totalEventsCount;
 
     @FXML
     private Button consumeButton;
@@ -195,7 +198,8 @@ public class ConsumerController extends GridPane {
             this.endDateChoice.setVisible(endChoice.getValue().isShowDatePicker());
             this.endTimeChoice.setVisible(endChoice.getValue().isShowDatePicker());
         });
-        totalEventCount.textProperty().bind(Bindings.size(limitedList).asString("%d events in topic"));
+        filteredEventsCount.textProperty().bind(Bindings.size(limitedList).asString("%d filtered events"));
+        totalEventsCount.textProperty().bind(totalEventsCountValue.asString("%d events in topic"));
     }
 
     /**
@@ -248,7 +252,8 @@ public class ConsumerController extends GridPane {
      */
     private void startConsumption() {
         stageId = UUID.randomUUID();
-        totalEventCount.setVisible(true);
+        filteredEventsCount.setVisible(true);
+        totalEventsCount.setVisible(true);
         EventFilter.EventFilterBuilder filterBuilder = EventFilter.builder();
         filterBuilder.startChoice(startChoice.getValue());
         filterBuilder.endChoice(endChoice.getValue());
@@ -262,7 +267,7 @@ public class ConsumerController extends GridPane {
                     .atTime(endTimeChoice != null ? endTimeChoice.getValue() : LocalTime.MIDNIGHT);
             filterBuilder.endLocalDateTime(endLocalDateTime);
         }
-
+        totalEventsCountValue.set(0L);
         consumerService = new Service<>() {
             @Override
             protected Task<Void> createTask() {
@@ -270,7 +275,7 @@ public class ConsumerController extends GridPane {
                     @Override
                     protected Void call() {
                         try {
-                            consumer.processEvents(stageId, topicName.getText(), limitedList, filterBuilder.build());
+                            consumer.processEvents(stageId, topicName.getText(), limitedList, filterBuilder.build(), totalEventsCountValue);
                         } catch (Exception e) {
                             log.error(String.valueOf(e));
                         }
