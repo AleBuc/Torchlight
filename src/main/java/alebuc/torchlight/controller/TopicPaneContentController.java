@@ -1,10 +1,9 @@
 package alebuc.torchlight.controller;
 
-import alebuc.torchlight.scene.ConsumerScene;
+import alebuc.torchlight.consumer.KafkaEventConsumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class TopicPaneContentController extends HBox {
 
-    private final ConsumerScene consumerScene;
+    private final KafkaEventConsumer consumer;
 
     @Setter
     @Getter
@@ -33,8 +32,8 @@ public class TopicPaneContentController extends HBox {
     private Button produceButton;
 
     @FXML
-    void consumeTopic(MouseEvent event) {
-        consumerScene.createConsumer(getTopicName());
+    void consumeTopic() {
+        new ConsumerController(getTopicName(), consumer);
     }
 
     /**

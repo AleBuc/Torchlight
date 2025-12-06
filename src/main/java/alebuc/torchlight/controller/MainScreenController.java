@@ -2,7 +2,6 @@ package alebuc.torchlight.controller;
 
 import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.model.Topic;
-import alebuc.torchlight.scene.ConsumerScene;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +28,6 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor
 public class MainScreenController implements Initializable {
     private final KafkaEventConsumer consumer;
-    private final ConsumerScene consumerScene;
     private List<Topic> topics;
 
     @FXML
@@ -69,10 +67,7 @@ public class MainScreenController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         refreshTopicList(null);
-        topicSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            setTopicList(filterTopicsByName());
-
-        });
+        topicSearchField.textProperty().addListener((_, _, _) -> setTopicList(filterTopicsByName()));
 
     }
 
@@ -92,7 +87,7 @@ public class MainScreenController implements Initializable {
 
     private Node createTopicPaneContent(Topic topic) {
         URL resource = getClass().getClassLoader().getResource("topicPaneContent.fxml");
-        TopicPaneContentController topicPaneContentController = new TopicPaneContentController(consumerScene);
+        TopicPaneContentController topicPaneContentController = new TopicPaneContentController(consumer);
         FXMLLoader paneContent = new FXMLLoader(resource);
         paneContent.setController(topicPaneContentController);
         Node node = null;

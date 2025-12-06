@@ -3,10 +3,11 @@ package alebuc.torchlight.consumer;
 
 import alebuc.torchlight.configuration.KafkaProperties;
 import alebuc.torchlight.model.Event;
+import alebuc.torchlight.model.EventFilter;
 import alebuc.torchlight.model.Partition;
 import alebuc.torchlight.model.Topic;
 import javafx.application.Platform;
-import javafx.scene.control.ListView;
+import javafx.beans.property.LongProperty;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -16,9 +17,18 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,17 +44,25 @@ public class KafkaEventConsumer {
     /**
      * Initializes the consumer and assign topic and partitions.
      */
-    public KafkaEventConsumer() {
+    public KafkaEventConsumer(Clock clock, ZoneId zoneId) {
         log.info("Starting consumer.");
-        menuConsumer = new KafkaConsumer<>(KAFKA_PROPERTIES);
+        this.menuConsumer = new KafkaConsumer<>(KAFKA_PROPERTIES);
     }
 
     /**
-     * Adds Kafka events to a given list. New Kafka consumer is created each time to be multi-thread safe.
+     * Consumes events from a specified Kafka topic and processes them by adding the events to the provided list.
+     * The method assigns the consumer to the topic's partitions and processes records until the specified stage ID is marked for stopping.
      *
-     * @param eventListView list to populate
+     * @param stageId     the unique identifier for the consumer's lifecycle stage, used to control when to stop consumption
+     * @param topicName   the name of the Kafka topic to consume events from
+     * @param eventList   the list to which processed events will be added
+     * @param eventFilter the filter containing start and end instants to filter events by timestamp
      */
-    public void processEvents(UUID stageId, String topicName, ListView<Event<?,?>> eventListView) {
+    public void processEvents(UUID stageId,
+                              String topicName,
+                              List<Event<?, ?>> eventList,
+                              EventFilter eventFilter,
+                              LongProperty totalEventsCount) {
         Topic topic = topicByName.get(topicName);
         List<TopicPartition> partitions = new ArrayList<>();
         for (Partition partition : topic.getPartitions()) {
@@ -62,8 +80,14 @@ public class KafkaEventConsumer {
                 for (ConsumerRecord<String, String> consumerRecord : records) {
                     Platform.runLater(() -> {
                         Event<?, ?> event = new Event<>(consumerRecord);
-                        eventListView.getItems().add(event);
-                        log.info(event.toString());
+                        totalEventsCount.set(totalEventsCount.get() + 1);
+                        boolean afterStart = (eventFilter.startInstant() == null) || !event.getTimestamp().isBefore(eventFilter.startInstant());
+                        boolean beforeEnd = (eventFilter.endInstant() == null) || !event.getTimestamp().isAfter(eventFilter.endInstant());
+
+                        if (afterStart && beforeEnd) {
+                            eventList.add(event);
+                            log.info(event.toString());
+                        }
                     });
                 }
             }
@@ -126,4 +150,5 @@ public class KafkaEventConsumer {
     public void stopTopicConsumption(UUID stageId) {
         stageIdForConsumerStopping.add(stageId);
     }
+
 }
