@@ -1,14 +1,11 @@
 package alebuc.torchlight;
 
-import alebuc.torchlight.configuration.AppConfiguration;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 
 import java.io.IOException;
 
@@ -23,9 +20,7 @@ public class JavaFXApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("ui.fxml"));
-        loader.setControllerFactory(context::getBean);
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("login.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
         stage.setTitle("Torchlight");

@@ -23,8 +23,8 @@ public class AppConfiguration {
     }
 
     @Bean
-    public KafkaEventConsumer kafkaEventConsumer(Clock clock, ZoneId zoneId) {
-        return new KafkaEventConsumer(clock, zoneId);
+    public KafkaEventConsumer kafkaEventConsumer(KafkaProperties kafkaProperties) {
+        return new KafkaEventConsumer(kafkaProperties);
     }
 
     @Bean
