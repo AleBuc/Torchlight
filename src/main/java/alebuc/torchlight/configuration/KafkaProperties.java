@@ -1,11 +1,10 @@
 package alebuc.torchlight.configuration;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import alebuc.torchlight.model.login.LoginType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,32 +12,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
+@RequiredArgsConstructor
 public class KafkaProperties {
-    private static final Logger log = LoggerFactory.getLogger(KafkaProperties.class);
-    private static final String CLUSTER_URL = "cluster.url";
-    private static final String CLUSTER_CREDENTIALS_USERNAME = "cluster.credentials.username";
-    private static final String CLUSTER_CREDENTIALS_PASSWORD = "cluster.credentials.password";
-    private static final String TOPIC_NAME = "topic-name";
+    private final String brokerUrl;
+    private final LoginType loginType;
+    private final String username;
+    private final String secret;
 
     /**
      * Gets Kafka cluster properties
      *
      * @return retrieved properties
      */
-    public static Properties getProperties() {
+    public Properties getProperties() {
         Properties properties = new Properties();
-        Properties readenProperties = readPropertiesFile();
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, readenProperties.getProperty(CLUSTER_URL));
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(false));
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.setProperty(TOPIC_NAME, readenProperties.getProperty(TOPIC_NAME));
         return properties;
     }
 
-    private static Properties readPropertiesFile() {
+    private Properties readPropertiesFile() {
         Properties properties = new Properties();
         try (InputStream is = KafkaProperties.class.getClassLoader().getResourceAsStream("application.properties")) {
             if (is == null) {
@@ -52,17 +49,18 @@ public class KafkaProperties {
         return properties;
     }
 
-    private static void checkProperties(Properties properties) {
+    private void checkProperties(Properties properties) {
         List<String> missingPropertyList = new ArrayList<>();
-        checkAndAddMissingPropertyToList(properties, missingPropertyList, CLUSTER_URL);
-//        checkAndAddMissingPropertyToList(properties, missingPropertyList, CLUSTER_CREDENTIALS_USERNAME);
-//        checkAndAddMissingPropertyToList(properties, missingPropertyList, CLUSTER_CREDENTIALS_PASSWORD);
-        checkAndAddMissingPropertyToList(properties, missingPropertyList, TOPIC_NAME);
+        checkAndAddMissingPropertyToList(properties, missingPropertyList, brokerUrl);
+        if (loginType.equals(LoginType.CLIENT_CREDENTIALS)){
+        checkAndAddMissingPropertyToList(properties, missingPropertyList, username);
+        checkAndAddMissingPropertyToList(properties, missingPropertyList, secret);
+        }
         if (!missingPropertyList.isEmpty()) {
             if (missingPropertyList.size() == 1) {
-                throw new IllegalArgumentException(String.format("Required property '%s' is missing in the application.properties file.", missingPropertyList.getFirst()));
+                throw new IllegalArgumentException(String.format("Required property '%s' is missing.", missingPropertyList.getFirst()));
             } else {
-                throw new IllegalArgumentException(String.format("Required properties '%s' are missing in the application.properties file.", missingPropertyList));
+                throw new IllegalArgumentException(String.format("Required properties '%s' are missing.", missingPropertyList));
             }
         }
     }

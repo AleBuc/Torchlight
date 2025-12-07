@@ -8,45 +8,42 @@ import alebuc.torchlight.model.Partition;
 import alebuc.torchlight.model.Topic;
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.Clock;
 import java.time.Duration;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class KafkaEventConsumer {
 
-    private static final Properties KAFKA_PROPERTIES = KafkaProperties.getProperties();
-    private final Logger log = LoggerFactory.getLogger(KafkaEventConsumer.class);
 
     private final KafkaConsumer<String, String> menuConsumer;
+    private final KafkaProperties kafkaProperties;
     Map<String, Topic> topicByName;
     private final Set<UUID> stageIdForConsumerStopping = new HashSet<>();
 
     /**
      * Initializes the consumer and assign topic and partitions.
      */
-    public KafkaEventConsumer(Clock clock, ZoneId zoneId) {
+    public KafkaEventConsumer(KafkaProperties kafkaProperties) {
         log.info("Starting consumer.");
-        this.menuConsumer = new KafkaConsumer<>(KAFKA_PROPERTIES);
+        this.kafkaProperties = kafkaProperties;
+        this.menuConsumer = new KafkaConsumer<>(kafkaProperties.getProperties());
     }
 
     /**
@@ -63,6 +60,10 @@ public class KafkaEventConsumer {
                               List<Event<?, ?>> eventList,
                               EventFilter eventFilter,
                               LongProperty totalEventsCount) {
+        if (kafkaProperties == null) {
+            log.error("Kafka properties not found.");
+            return;
+        }
         Topic topic = topicByName.get(topicName);
         List<TopicPartition> partitions = new ArrayList<>();
         for (Partition partition : topic.getPartitions()) {
@@ -72,7 +73,7 @@ public class KafkaEventConsumer {
             log.warn("No partition found for topic {}", topicName);
             return;
         }
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(KAFKA_PROPERTIES)) {
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaProperties.getProperties())) {
             consumer.assign(partitions);
             log.info("Start consumption of topic {}.", topicName);
             while (!stageIdForConsumerStopping.contains(stageId)) {
