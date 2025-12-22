@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +34,9 @@ public class ValueUtils {
     }
 
     public static boolean isValidJson(String string) {
+        if (StringUtils.isBlank(string)) {
+            return false;
+        }
         try {
             objectMapper.readTree(string);
         } catch (JacksonException e) {

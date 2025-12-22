@@ -1,5 +1,6 @@
 package alebuc.torchlight.model.consumer;
 
+import javafx.util.StringConverter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -46,4 +47,26 @@ public enum StartChoice {
                 clock.instant().minus(1, java.time.temporal.ChronoUnit.DAYS).truncatedTo(java.time.temporal.ChronoUnit.DAYS);
         case SPECIFIC_DATE, EARLIEST -> null;
     };
+
+    public static StringConverter<StartChoice> getStringConverter() {
+        return new StringConverter<>() {
+            @Override
+            public String toString(StartChoice choice) {
+                return choice == null ? "" : choice.getName();
+            }
+
+            @Override
+            public StartChoice fromString(String string) {
+                if (string == null) {
+                    return null;
+                }
+                for (StartChoice c : StartChoice.values()) {
+                    if (c.getName().equals(string)) {
+                        return c;
+                    }
+                }
+                return null;
+            }
+        };
+    }
 }

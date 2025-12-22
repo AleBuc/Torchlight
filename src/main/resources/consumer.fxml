@@ -8,72 +8,80 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="830.0"
-          xmlns="http://javafx.com/javafx/24.0.1">
+
+<GridPane prefHeight="600.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
-        <ColumnConstraints hgrow="ALWAYS" prefWidth="590.0"/>
-        <ColumnConstraints prefWidth="1.0"/>
-        <ColumnConstraints maxWidth="210.0" minWidth="210.0" prefWidth="210.0"/>
+        <ColumnConstraints hgrow="ALWAYS" prefWidth="590.0" />
+        <ColumnConstraints prefWidth="1.0" />
+        <ColumnConstraints maxWidth="210.0" minWidth="210.0" prefWidth="210.0" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints prefHeight="100.0"/>
-        <RowConstraints prefHeight="1.0"/>
-        <RowConstraints vgrow="ALWAYS"/>
+        <RowConstraints prefHeight="100.0" />
+        <RowConstraints prefHeight="1.0" />
+        <RowConstraints vgrow="ALWAYS" />
     </rowConstraints>
 
     <!-- Left top content -->
     <VBox GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <Label fx:id="topicName" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308"
-               maxWidth="1.7976931348623157E308" text="TopicName" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS">
+        <Label fx:id="topicName" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="TopicName" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS">
             <font>
-                <Font name="System Bold" size="22.0"/>
+                <Font name="System Bold" size="22.0" />
             </font>
         </Label>
     </VBox>
 
-    <Separator GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <Separator GridPane.columnIndex="0" GridPane.rowIndex="1" />
 
     <!-- Left center content -->
-    <ListView fx:id="eventListView" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <ListView fx:id="eventListView" GridPane.columnIndex="0" GridPane.rowIndex="2" />
 
-    <Separator orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="3"/>
+    <Separator orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="3" />
     <!-- Right content -->
     <VBox GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.rowSpan="3">
-        <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="4.0">
+        <VBox alignment="CENTER_LEFT" prefHeight="200.0" spacing="4.0">
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
-            <Label text="Start to consume from:"/>
-            <ChoiceBox fx:id="startChoice" prefWidth="189.0" maxWidth="1.7976931348623157E308"/>
-            <DatePicker fx:id="startDateChoice" maxWidth="1.7976931348623157E308"/>
-            <TimeSpinner fx:id="startTimeChoice" maxWidth="1.7976931348623157E308"/>
+            <Label text="Key type:" />
+            <ChoiceBox fx:id="keyTypeChoice" maxWidth="1.7976931348623157E308" />
+            <Label text="Value type:" />
+            <ChoiceBox fx:id="valueTypeChoice" maxWidth="1.7976931348623157E308" />
         </VBox>
         <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="4.0">
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
-            <Label text="To:"/>
-            <ChoiceBox fx:id="endChoice" prefWidth="189.0" maxWidth="1.7976931348623157E308"/>
-            <DatePicker fx:id="endDateChoice" maxWidth="1.7976931348623157E308"/>
-            <TimeSpinner fx:id="endTimeChoice" maxWidth="1.7976931348623157E308"/>
+            <Label text="Start to consume from:" />
+            <ChoiceBox fx:id="startChoice" maxWidth="1.7976931348623157E308" prefWidth="189.0" />
+            <DatePicker fx:id="startDateChoice" maxWidth="1.7976931348623157E308" />
+            <TimeSpinner fx:id="startTimeChoice" maxWidth="1.7976931348623157E308" />
         </VBox>
-        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+        <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="4.0">
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
-            <Label fx:id="filteredEventsCount" maxHeight="Infinity" text="filteredEventCount" visible="false"
-                   VBox.vgrow="ALWAYS"/>
-            <Label fx:id="totalEventsCount" maxHeight="Infinity" text="totalEventCount" visible="false"
-                   VBox.vgrow="ALWAYS"/>
-            <HBox alignment="CENTER" maxHeight="Infinity" prefHeight="100.0" prefWidth="200.0" spacing="20.0"
-                  VBox.vgrow="ALWAYS">
-                <Button fx:id="consumeButton" mnemonicParsing="false" onAction="#consumeButtonAction" text="Consume"
-                        HBox.hgrow="ALWAYS"/>
+            <Label text="To:" />
+            <ChoiceBox fx:id="endChoice" maxWidth="1.7976931348623157E308" prefWidth="189.0" />
+            <DatePicker fx:id="endDateChoice" maxWidth="1.7976931348623157E308" />
+            <TimeSpinner fx:id="endTimeChoice" maxWidth="1.7976931348623157E308" />
+        </VBox>
+        <VBox alignment="CENTER" prefWidth="100.0">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+            <Label fx:id="filteredEventsCount" maxHeight="Infinity" text="filteredEventCount" visible="false" VBox.vgrow="ALWAYS" />
+            <Label fx:id="totalEventsCount" maxHeight="Infinity" text="totalEventCount" visible="false" VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER" maxHeight="Infinity" prefHeight="100.0" prefWidth="200.0" spacing="20.0" VBox.vgrow="ALWAYS">
+                <Button fx:id="consumeButton" mnemonicParsing="false" onAction="#consumeButtonAction" text="Consume" HBox.hgrow="ALWAYS" />
             </HBox>
             <VBox.margin>
-                <Insets/>
+                <Insets />
             </VBox.margin>
         </VBox>
     </VBox>

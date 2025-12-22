@@ -2,6 +2,7 @@ package alebuc.torchlight.consumer;
 
 
 import alebuc.torchlight.configuration.KafkaProperties;
+import alebuc.torchlight.model.DataType;
 import alebuc.torchlight.model.Event;
 import alebuc.torchlight.model.EventFilter;
 import alebuc.torchlight.model.Partition;
@@ -47,19 +48,25 @@ public class KafkaEventConsumer {
     }
 
     /**
-     * Consumes events from a specified Kafka topic and processes them by adding the events to the provided list.
-     * The method assigns the consumer to the topic's partitions and processes records until the specified stage ID is marked for stopping.
+     * Processes events from a specified Kafka topic, filtering them based on the provided event filter,
+     * and adds the filtered events to the provided event list. Additionally, it keeps track of the total
+     * number of events processed.
      *
-     * @param stageId     the unique identifier for the consumer's lifecycle stage, used to control when to stop consumption
-     * @param topicName   the name of the Kafka topic to consume events from
-     * @param eventList   the list to which processed events will be added
-     * @param eventFilter the filter containing start and end instants to filter events by timestamp
+     * @param stageId          unique identifier of the current consumer stage, used to control when to stop consumption.
+     * @param topicName        name of the Kafka topic from which events will be consumed.
+     * @param eventList        list in which the filtered events will be added after processing.
+     * @param eventFilter      filter criteria to include or exclude events based on their timestamp.
+     * @param totalEventsCount a mutable counter to track the total number of processed events.
+     * @param keyType          data type of the event key for deserialization.
+     * @param valueType        data type of the event value for deserialization.
      */
     public void processEvents(UUID stageId,
                               String topicName,
                               List<Event<?, ?>> eventList,
                               EventFilter eventFilter,
-                              LongProperty totalEventsCount) {
+                              LongProperty totalEventsCount,
+                              DataType keyType,
+                              DataType valueType) {
         if (kafkaProperties == null) {
             log.error("Kafka properties not found.");
             return;
@@ -80,7 +87,7 @@ public class KafkaEventConsumer {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS));
                 for (ConsumerRecord<String, String> consumerRecord : records) {
                     Platform.runLater(() -> {
-                        Event<?, ?> event = new Event<>(consumerRecord);
+                        Event<?, ?> event = new Event<>(consumerRecord, keyType, valueType);
                         totalEventsCount.set(totalEventsCount.get() + 1);
                         boolean afterStart = (eventFilter.startInstant() == null) || !event.getTimestamp().isBefore(eventFilter.startInstant());
                         boolean beforeEnd = (eventFilter.endInstant() == null) || !event.getTimestamp().isAfter(eventFilter.endInstant());
