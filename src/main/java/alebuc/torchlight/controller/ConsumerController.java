@@ -2,6 +2,7 @@ package alebuc.torchlight.controller;
 
 import alebuc.torchlight.component.TimeSpinner;
 import alebuc.torchlight.consumer.KafkaEventConsumer;
+import alebuc.torchlight.model.DataType;
 import alebuc.torchlight.model.Event;
 import alebuc.torchlight.model.EventFilter;
 import alebuc.torchlight.model.consumer.EndChoice;
@@ -25,7 +26,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +54,11 @@ public class ConsumerController extends GridPane {
 
     private final ObservableList<Event<?, ?>> limitedList = FXCollections.observableArrayList();
     private final LongProperty totalEventsCountValue = new SimpleLongProperty(0);
+
+    @FXML
+    private ChoiceBox<DataType> keyTypeChoice;
+    @FXML
+    private ChoiceBox<DataType> valueTypeChoice;
 
     @FXML
     private ChoiceBox<StartChoice> startChoice;
@@ -139,65 +144,34 @@ public class ConsumerController extends GridPane {
     private void init(String topicName) {
         this.topicName.setText(topicName);
 
+        this.keyTypeChoice.getItems().addAll(DataType.values());
+        this.keyTypeChoice.setConverter(DataType.getStringConverter());
+        this.keyTypeChoice.setValue(DataType.DEFAULT);
+
+        this.valueTypeChoice.getItems().addAll(DataType.values());
+        this.valueTypeChoice.setConverter(DataType.getStringConverter());
+        this.valueTypeChoice.setValue(DataType.DEFAULT);
+
         this.startChoice.getItems().addAll(StartChoice.values());
-        this.endChoice.getItems().addAll(EndChoice.values());
-
-        this.startChoice.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(StartChoice choice) {
-                return choice == null ? "" : choice.getName();
-            }
-
-            @Override
-            public StartChoice fromString(String string) {
-                if (string == null) {
-                    return null;
-                }
-                for (StartChoice c : StartChoice.values()) {
-                    if (c.getName().equals(string)) {
-                        return c;
-                    }
-                }
-                return null;
-            }
-        });
-
-        this.endChoice.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(EndChoice choice) {
-                return choice == null ? "" : choice.getName();
-            }
-
-            @Override
-            public EndChoice fromString(String string) {
-                if (string == null) {
-                    return null;
-                }
-                for (EndChoice c : EndChoice.values()) {
-                    if (c.getName().equals(string)) {
-                        return c;
-                    }
-                }
-                return null;
-            }
-        });
-
+        this.startChoice.setConverter(StartChoice.getStringConverter());
         this.startChoice.setValue(StartChoice.DEFAULT);
-        this.endChoice.setValue(EndChoice.DEFAULT);
-
         this.startDateChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
-        this.startTimeChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
-        this.endDateChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
-        this.endTimeChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
-
         this.startChoice.setOnAction(_ -> {
             this.startDateChoice.setVisible(startChoice.getValue().isShowDatePicker());
             this.startTimeChoice.setVisible(startChoice.getValue().isShowDatePicker());
         });
+        this.startTimeChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
+
+        this.endChoice.getItems().addAll(EndChoice.values());
+        this.endChoice.setConverter(EndChoice.getStringConverter());
+        this.endChoice.setValue(EndChoice.DEFAULT);
+        this.endDateChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
         this.endChoice.setOnAction(_ -> {
             this.endDateChoice.setVisible(endChoice.getValue().isShowDatePicker());
             this.endTimeChoice.setVisible(endChoice.getValue().isShowDatePicker());
         });
+        this.endTimeChoice.setVisible(StartChoice.DEFAULT.isShowDatePicker());
+
         filteredEventsCount.textProperty().bind(Bindings.size(limitedList).asString("%d filtered events"));
         totalEventsCount.textProperty().bind(totalEventsCountValue.asString("%d events in topic"));
     }
@@ -275,7 +249,15 @@ public class ConsumerController extends GridPane {
                     @Override
                     protected Void call() {
                         try {
-                            consumer.processEvents(stageId, topicName.getText(), limitedList, filterBuilder.build(), totalEventsCountValue);
+                            consumer.processEvents(
+                                    stageId,
+                                    topicName.getText(),
+                                    limitedList,
+                                    filterBuilder.build(),
+                                    totalEventsCountValue,
+                                    keyTypeChoice.getValue(),
+                                    valueTypeChoice.getValue()
+                            );
                         } catch (Exception e) {
                             log.error(String.valueOf(e));
                         }
@@ -293,11 +275,13 @@ public class ConsumerController extends GridPane {
      * <p>
      * This method checks the current state of the `startChoice` component
      * (enabled or disabled). It then switches its state and also updates the
-     * state of related components (`startDateChoice`, `startTimeChoice`,
-     * `endChoice`, `endDateChoice`, `endTimeChoice`) to match the new state.
+     * state of related components (`keyTypeChoice`, `valueTypeChoice`, `startDateChoice`,
+     * `startTimeChoice`, `endChoice`, `endDateChoice`, `endTimeChoice`) to match the new state.
      */
     private void toggleFilters() {
         boolean currentlyDisabled = startChoice.isDisabled();
+        keyTypeChoice.setDisable(!currentlyDisabled);
+        valueTypeChoice.setDisable(!currentlyDisabled);
         startChoice.setDisable(!currentlyDisabled);
         startDateChoice.setDisable(!currentlyDisabled);
         startTimeChoice.setDisable(!currentlyDisabled);
