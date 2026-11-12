@@ -9,19 +9,18 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <mainClass>alebuc.torchlight.JavaFXApplication</mainClass>
-        <lombok.version>1.18.42</lombok.version>
-        <spring.version>6.2.11</spring.version>
-        <javafx.version>25.0.1</javafx.version>
-        <kafka.version>3.7.1</kafka.version>
-        <jackson.version>2.17.2</jackson.version>
-        <jackson.jsr310.version>2.18.2</jackson.jsr310.version>
-        <commons.lang.version>3.19.0</commons.lang.version>
-        <logback.version>1.5.19</logback.version>
-        <slf4j.version>2.0.13</slf4j.version>
-        <mockito.version>5.15.2</mockito.version>
-        <junit.version>5.11.4</junit.version>
-        <assertj.version>3.27.3</assertj.version>
-        <testcontainers.version>1.21.3</testcontainers.version>
+        <lombok.version>1.18.48</lombok.version>
+        <spring.version>6.2.19</spring.version>
+        <javafx.version>25.0.5</javafx.version>
+        <kafka.version>3.9.2</kafka.version>
+        <jackson.version>2.23.0</jackson.version>
+        <commons.lang.version>3.22.0</commons.lang.version>
+        <logback.version>1.5.38</logback.version>
+        <slf4j.version>2.0.20</slf4j.version>
+        <mockito.version>5.24.0</mockito.version>
+        <junit.version>5.14.4</junit.version>
+        <assertj.version>3.27.7</assertj.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -72,7 +71,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.jsr310.version}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
