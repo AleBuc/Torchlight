@@ -1,13 +1,14 @@
 package alebuc.torchlight.store;
 
 import alebuc.torchlight.model.login.Login;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.CollectionType;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -56,9 +57,10 @@ public class LoginProfileStore {
      */
     public LoginProfileStore(Path file) {
         this.file = Objects.requireNonNull(file, "file").toAbsolutePath();
-        this.objectMapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .enable(SerializationFeature.INDENT_OUTPUT);
+        this.objectMapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
         this.listType = objectMapper.getTypeFactory().constructCollectionType(List.class, Login.class);
     }
 
@@ -171,7 +173,13 @@ public class LoginProfileStore {
         boolean posix = isPosix();
         createDirectory(directory, posix);
 
-        byte[] content = objectMapper.writeValueAsBytes(profiles.stream().sorted(BY_NAME).toList());
+        byte[] content;
+        try {
+            content = objectMapper.writeValueAsBytes(profiles.stream().sorted(BY_NAME).toList());
+        } catch (JacksonException e) {
+            // Jackson 3 exceptions are unchecked: keep reporting serialization failures as I/O errors.
+            throw new IOException("Could not serialize the profiles", e);
+        }
         FileAttribute<?>[] attributes = posix
                 ? new FileAttribute<?>[]{PosixFilePermissions.asFileAttribute(FILE_PERMISSIONS)}
                 : new FileAttribute<?>[0];

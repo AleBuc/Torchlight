@@ -13,7 +13,7 @@
         <spring.version>7.0.10</spring.version>
         <javafx.version>25.0.5</javafx.version>
         <kafka.version>4.4.0</kafka.version>
-        <jackson.version>2.23.0</jackson.version>
+        <jackson.version>3.3.0</jackson.version>
         <commons.lang.version>3.22.0</commons.lang.version>
         <logback.version>1.6.6</logback.version>
         <slf4j.version>2.0.20</slf4j.version>
@@ -64,13 +64,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>

@@ -12,7 +12,7 @@ open module alebuc.torchlight {
     requires javafx.graphics;
     requires java.desktop;
     requires org.slf4j;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.databind;
     requires org.apache.commons.lang3;
 
     exports alebuc.torchlight.component;
