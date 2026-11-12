@@ -51,6 +51,15 @@ class LoginProfileStoreTest {
     }
 
     @Test
+    void findAll_jsonNull_returnsEmptyListAndKeepsTheFile() throws IOException {
+        Files.createDirectories(file().getParent());
+        Files.writeString(file(), "null");
+
+        assertThat(store().findAll()).isEmpty();
+        assertThat(file()).hasContent("null");
+    }
+
+    @Test
     void save_thenFindAll_roundTripsAllFieldsSortedByName() throws IOException {
         Login local = new Login("local", "localhost", 9092, LoginType.NONE, null);
         Login prod = new Login("Prod", "kafka.example.com", 9093, LoginType.CLIENT_CREDENTIALS, "alice");
