@@ -12,7 +12,7 @@
         <lombok.version>1.18.48</lombok.version>
         <spring.version>7.0.10</spring.version>
         <javafx.version>25.0.5</javafx.version>
-        <kafka.version>3.9.2</kafka.version>
+        <kafka.version>4.4.0</kafka.version>
         <jackson.version>2.23.0</jackson.version>
         <commons.lang.version>3.22.0</commons.lang.version>
         <logback.version>1.5.38</logback.version>
