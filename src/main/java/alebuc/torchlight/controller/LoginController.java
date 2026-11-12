@@ -57,6 +57,11 @@ public class LoginController {
      * and a progress indicator is shown meanwhile.
      */
     private final BooleanProperty connecting = new SimpleBooleanProperty(false);
+    /**
+     * Set while the profile list is reloaded, so that restoring the selection does not overwrite
+     * the form, and the secret typed by the user.
+     */
+    private boolean reloadingProfiles;
 
     @FXML
     private ListView<Login> profileListView;
@@ -117,7 +122,7 @@ public class LoginController {
         });
         profileListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    if (newValue != null) {
+                    if (newValue != null && !reloadingProfiles) {
                         fillForm(newValue);
                     }
                 });
@@ -158,6 +163,8 @@ public class LoginController {
                     "The profile could not be written to " + profileStore.getFile() + ":\n" + e.getMessage());
             return;
         }
+        // Keeps the list up to date if the connection fails and the login window stays open.
+        loadProfiles(login.get().name());
         connect();
     }
 
@@ -317,6 +324,16 @@ public class LoginController {
     }
 
     private void loadProfiles() {
+        loadProfiles(null);
+    }
+
+    /**
+     * Reloads the profile list from the store.
+     *
+     * @param nameToSelect name of the profile to select after reloading, without filling the form,
+     *                     or {@code null} to leave the list unselected
+     */
+    private void loadProfiles(String nameToSelect) {
         List<Login> profiles;
         try {
             profiles = profileStore.findAll();
@@ -330,7 +347,17 @@ public class LoginController {
             String message = "Saved profiles could not be read from " + profileStore.getFile() + ":\n" + e.getMessage();
             Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Could not read saved profiles", message));
         }
-        profileListView.getItems().setAll(profiles);
+        reloadingProfiles = true;
+        try {
+            profileListView.getItems().setAll(profiles);
+            profiles.stream()
+                    .filter(profile -> profile.name().equals(nameToSelect))
+                    .findFirst()
+                    .ifPresentOrElse(profileListView.getSelectionModel()::select,
+                            profileListView.getSelectionModel()::clearSelection);
+        } finally {
+            reloadingProfiles = false;
+        }
     }
 
     private void fillForm(Login login) {
