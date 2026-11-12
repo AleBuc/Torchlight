@@ -30,7 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class KafkaEventConsumer {
+public class KafkaEventConsumer implements AutoCloseable {
 
 
     private final KafkaConsumer<String, String> menuConsumer;
@@ -110,6 +110,17 @@ public class KafkaEventConsumer {
     }
 
     /**
+     * Checks that the cluster answers, by fetching its topic metadata. Blocks until the cluster answers
+     * or {@code default.api.timeout.ms} expires (60 seconds by default), so it should not be called
+     * on the JavaFX application thread.
+     *
+     * @throws org.apache.kafka.common.errors.TimeoutException if the cluster does not answer in time
+     */
+    public void checkConnection() {
+        menuConsumer.listTopics();
+    }
+
+    /**
      * Retrieves broker topic list.
      *
      * @return a list of {@link Topic}
@@ -157,6 +168,14 @@ public class KafkaEventConsumer {
      */
     public void stopTopicConsumption(UUID stageId) {
         stageIdForConsumerStopping.add(stageId);
+    }
+
+    /**
+     * Closes the underlying Kafka consumer. Called by Spring when the application context is closed.
+     */
+    @Override
+    public void close() {
+        menuConsumer.close();
     }
 
 }
