@@ -28,6 +28,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
@@ -174,11 +175,9 @@ public class LoginController {
         if (selected == null) {
             return;
         }
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+        Alert confirmation = createAlert(Alert.AlertType.CONFIRMATION, null,
                 "Delete the profile \"" + selected.name() + "\"?", ButtonType.OK, ButtonType.CANCEL);
-        confirmation.setHeaderText(null);
         confirmation.setTitle("Delete profile");
-        confirmation.initOwner(getWindow());
         if (confirmation.showAndWait().filter(ButtonType.OK::equals).isEmpty()) {
             return;
         }
@@ -396,14 +395,23 @@ public class LoginController {
     }
 
     private void showAlert(Alert.AlertType type, String header, String content) {
-        Alert alert = new Alert(type, content, ButtonType.OK);
+        createAlert(type, header, content, ButtonType.OK).showAndWait();
+    }
+
+    /**
+     * Creates an alert owned by the login window, whose height fits its wrapped text. Without the minimum
+     * height, the dialog does not grow with the text, which is then truncated with an ellipsis.
+     */
+    private Alert createAlert(Alert.AlertType type, String header, String content, ButtonType... buttons) {
+        Alert alert = new Alert(type, content, buttons);
         alert.setTitle("Torchlight");
         alert.setHeaderText(header);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         Window owner = getWindow();
         if (owner != null) {
             alert.initOwner(owner);
         }
-        alert.showAndWait();
+        return alert;
     }
 
     private Window getWindow() {
