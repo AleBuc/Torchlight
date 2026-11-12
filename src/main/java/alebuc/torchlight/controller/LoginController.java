@@ -2,11 +2,15 @@ package alebuc.torchlight.controller;
 
 import alebuc.torchlight.configuration.AppConfiguration;
 import alebuc.torchlight.configuration.KafkaProperties;
+import alebuc.torchlight.consumer.KafkaEventConsumer;
 import alebuc.torchlight.model.login.Login;
 import alebuc.torchlight.model.login.LoginType;
 import alebuc.torchlight.store.CorruptedProfileFileException;
 import alebuc.torchlight.store.LoginProfileStore;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,12 +25,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
@@ -45,9 +52,16 @@ public class LoginController {
     private static final int MAX_PORT = 65535;
 
     private final LoginProfileStore profileStore = LoginProfileStore.defaultStore();
+    /**
+     * {@code true} while a connection attempt runs in the background: the form is disabled
+     * and a progress indicator is shown meanwhile.
+     */
+    private final BooleanProperty connecting = new SimpleBooleanProperty(false);
 
     @FXML
     private ListView<Login> profileListView;
+    @FXML
+    private GridPane formPane;
     @FXML
     private TextField profileName;
     @FXML
@@ -64,6 +78,10 @@ public class LoginController {
     private Label secretLabel;
     @FXML
     private PasswordField secret;
+    @FXML
+    private ProgressIndicator connectionProgress;
+    @FXML
+    private Label connectionStatus;
     @FXML
     private Button deleteProfileButton;
     @FXML
@@ -103,7 +121,16 @@ public class LoginController {
                         fillForm(newValue);
                     }
                 });
-        deleteProfileButton.disableProperty().bind(profileListView.getSelectionModel().selectedItemProperty().isNull());
+        deleteProfileButton.disableProperty().bind(
+                profileListView.getSelectionModel().selectedItemProperty().isNull().or(connecting));
+        profileListView.disableProperty().bind(connecting);
+        formPane.disableProperty().bind(connecting);
+        saveAndConnectButton.disableProperty().bind(connecting);
+        connectButton.disableProperty().bind(connecting);
+        for (Node node : List.of(connectionProgress, connectionStatus)) {
+            node.visibleProperty().bind(connecting);
+            node.managedProperty().bind(connecting);
+        }
 
         loadProfiles();
     }
@@ -165,37 +192,79 @@ public class LoginController {
     /**
      * Connects to the cluster described by the form, then replaces the login window by the main window.
      * Shared by "Connect" and "Save &amp; connect". The secret is only kept in memory.
+     * <p>
+     * The cluster is reached on a background thread, so the window stays responsive: the form is disabled
+     * and a progress indicator is shown until the attempt succeeds or fails.
      */
     private void connect() {
-        setConnectButtonsDisabled(true);
+        String brokerUrl = getBrokerUrl();
+        KafkaProperties kafkaProperties =
+                new KafkaProperties(brokerUrl, loginType.getValue(), username.getText(), secret.getText());
+        Task<AnnotationConfigApplicationContext> connection = new Task<>() {
+            @Override
+            protected AnnotationConfigApplicationContext call() {
+                return startContext(kafkaProperties);
+            }
+        };
+        connection.setOnSucceeded(event -> openMainWindow(connection.getValue(), brokerUrl));
+        connection.setOnFailed(event -> onConnectionFailed(brokerUrl, connection.getException()));
+        connectionStatus.setText("Connecting" + describeTarget(brokerUrl) + "…");
+        connecting.set(true);
+        Thread.ofPlatform().name("torchlight-connection").daemon().start(connection);
+    }
+
+    /**
+     * Creates the Spring context and checks that the cluster answers. Runs on a background thread, since
+     * an unreachable cluster blocks until the Kafka client times out.
+     *
+     * @return the started context
+     * @throws RuntimeException if the context cannot be started or the cluster does not answer;
+     *                          the context is closed in that case
+     */
+    private static AnnotationConfigApplicationContext startContext(KafkaProperties kafkaProperties) {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         try {
-            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-            KafkaProperties kafkaProperties =
-                    new KafkaProperties(getBrokerUrl(), loginType.getValue(), username.getText(), secret.getText());
             context.getBeanFactory().registerSingleton("kafkaProperties", kafkaProperties);
             context.register(AppConfiguration.class);
             context.refresh();
+            context.getBean(KafkaEventConsumer.class).checkConnection();
+            return context;
+        } catch (RuntimeException e) {
+            context.close();
+            throw e;
+        }
+    }
 
+    /**
+     * Opens the main window with the started context and closes the login window.
+     * The context is closed if the main window cannot be opened.
+     */
+    private void openMainWindow(AnnotationConfigApplicationContext context, String brokerUrl) {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("ui.fxml"));
             loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
-            Scene scene = new Scene(root);
             Stage stage = new Stage();
             stage.setTitle("Torchlight");
-            stage.setScene(scene);
+            stage.setScene(new Scene(root));
             Stage loginStage = (Stage) connectButton.getScene().getWindow();
             loginStage.close();
             stage.show();
         } catch (IOException | RuntimeException e) {
-            log.error("Connection failed", e);
-            setConnectButtonsDisabled(false);
-            showAlert(Alert.AlertType.ERROR, "Connection failed", String.valueOf(e.getMessage()));
+            context.close();
+            onConnectionFailed(brokerUrl, e);
         }
     }
 
-    private void setConnectButtonsDisabled(boolean disabled) {
-        connectButton.setDisable(disabled);
-        saveAndConnectButton.setDisable(disabled);
+    private void onConnectionFailed(String brokerUrl, Throwable failure) {
+        log.warn("Connection to '{}' failed", brokerUrl, failure);
+        connecting.set(false);
+        showAlert(Alert.AlertType.ERROR, "Could not connect" + describeTarget(brokerUrl),
+                ExceptionUtils.getRootCauseMessage(failure));
+    }
+
+    private static String describeTarget(String brokerUrl) {
+        return brokerUrl.isBlank() ? "" : " to " + brokerUrl;
     }
 
     private String getBrokerUrl() {

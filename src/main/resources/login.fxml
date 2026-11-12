@@ -6,11 +6,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -42,7 +44,7 @@
         </VBox>
     </left>
     <center>
-        <GridPane hgap="8.0" vgap="10.0">
+        <GridPane fx:id="formPane" hgap="8.0" vgap="10.0">
             <padding>
                 <Insets top="54.0" />
             </padding>
@@ -72,11 +74,14 @@
         </GridPane>
     </center>
     <bottom>
-        <HBox alignment="CENTER_RIGHT" spacing="8.0">
+        <HBox alignment="CENTER_LEFT" spacing="8.0">
             <BorderPane.margin>
                 <Insets top="12.0" />
             </BorderPane.margin>
             <children>
+                <ProgressIndicator fx:id="connectionProgress" managed="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="18.0" prefWidth="18.0" visible="false" />
+                <Label fx:id="connectionStatus" managed="false" visible="false" />
+                <Region HBox.hgrow="ALWAYS" />
                 <Button fx:id="deleteProfileButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDeleteProfileButtonAction" text="Delete" />
                 <Button fx:id="saveAndConnectButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSaveAndConnectButtonAction" text="Save &amp; connect" />
                 <Button fx:id="connectButton" defaultButton="true" minWidth="-Infinity" mnemonicParsing="false" onAction="#onConnectButtonAction" text="Connect" />
