@@ -33,6 +33,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -301,7 +302,7 @@ public class LoginController {
         if (portNumber < 0) {
             errors.add("Port must be a whole number between %d and %d.".formatted(MIN_PORT, MAX_PORT));
         }
-        if (!errors.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(errors)) {
             showAlert(Alert.AlertType.WARNING, "The profile cannot be saved", String.join("\n", errors));
             return Optional.empty();
         }

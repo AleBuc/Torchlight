@@ -14,6 +14,7 @@ open module alebuc.torchlight {
     requires org.slf4j;
     requires tools.jackson.databind;
     requires org.apache.commons.lang3;
+    requires org.apache.commons.collections4;
 
     exports alebuc.torchlight.component;
 }

@@ -10,6 +10,7 @@ import alebuc.torchlight.model.Topic;
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -20,6 +21,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -72,11 +74,9 @@ public class KafkaEventConsumer implements AutoCloseable {
             return;
         }
         Topic topic = topicByName.get(topicName);
-        List<TopicPartition> partitions = new ArrayList<>();
-        for (Partition partition : topic.getPartitions()) {
-            partitions.add(new TopicPartition(topicName, partition.getIndex()));
-        }
-        if (partitions.isEmpty()) {
+        Collection<TopicPartition> partitions = CollectionUtils.collect(topic.getPartitions(),
+                partition -> new TopicPartition(topicName, partition.getIndex()));
+        if (CollectionUtils.isEmpty(partitions)) {
             log.warn("No partition found for topic {}", topicName);
             return;
         }

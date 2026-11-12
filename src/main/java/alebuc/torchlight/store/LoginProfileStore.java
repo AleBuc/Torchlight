@@ -2,6 +2,7 @@ package alebuc.torchlight.store;
 
 import alebuc.torchlight.model.login.Login;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
@@ -141,10 +142,7 @@ public class LoginProfileStore {
             log.warn("Unreadable profile file {} moved to {}: {}", file, backup, e.getMessage());
             throw new CorruptedProfileFileException(file, backup, e);
         }
-        if (profiles == null) {
-            return List.of();
-        }
-        return profiles.stream()
+        return CollectionUtils.emptyIfNull(profiles).stream()
                 .filter(Objects::nonNull)
                 .filter(profile -> StringUtils.isNotBlank(profile.name()))
                 .sorted(BY_NAME)

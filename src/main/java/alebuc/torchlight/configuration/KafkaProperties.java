@@ -3,6 +3,7 @@ package alebuc.torchlight.configuration;
 import alebuc.torchlight.model.login.LoginType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -56,7 +57,7 @@ public class KafkaProperties {
         checkAndAddMissingPropertyToList(properties, missingPropertyList, username);
         checkAndAddMissingPropertyToList(properties, missingPropertyList, secret);
         }
-        if (!missingPropertyList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(missingPropertyList)) {
             if (missingPropertyList.size() == 1) {
                 throw new IllegalArgumentException(String.format("Required property '%s' is missing.", missingPropertyList.getFirst()));
             } else {
