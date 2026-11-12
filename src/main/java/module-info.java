@@ -3,6 +3,8 @@ open module alebuc.torchlight {
     requires spring.context;
     requires spring.core;
     requires spring.beans;
+    // Spring logs through Commons Logging, a named module that its automatic modules cannot require themselves.
+    requires org.apache.commons.logging;
     requires javafx.base;
     requires javafx.controls;
     requires javafx.fxml;
